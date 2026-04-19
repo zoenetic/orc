@@ -10,12 +10,6 @@ Install the CLI:
 go install github.com/zoenetic/orc/cmd/orc@latest
 ```
 
-Add the library to a project:
-
-```
-go get github.com/zoenetic/orc
-```
-
 ## Getting started
 
 Use `orc init` to scaffold a new project:
@@ -39,6 +33,12 @@ orc init [directory] [--git] [--yes]
 
   --git|-g  initialize as a git repository
   --yes|-y  skip confirmation prompt
+```
+
+Or add orc to an existing go project and do it yourself:
+
+```
+go get github.com/zoenetic/orc
 ```
 
 ## Defining plans
