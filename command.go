@@ -212,3 +212,15 @@ func (u *UndoClause) Confirm(conditions ...*Command) *UndoClause {
 	u.ifCmds = append(u.ifCmds, conditions...)
 	return u
 }
+
+type dependsOnOption struct {
+	tasks []*Task
+}
+
+func DependsOn(tasks ...*Task) *dependsOnOption {
+	return &dependsOnOption{tasks: tasks}
+}
+
+func (d *dependsOnOption) apply(t *Task) {
+	t.dependencies = append(t.dependencies, d.tasks...)
+}
