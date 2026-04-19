@@ -13,6 +13,10 @@ type Task struct {
 	env          []*EnvVar
 }
 
+func (t *Task) Name() string {
+	return t.name
+}
+
 type taskOption interface {
 	apply(*Task)
 }
