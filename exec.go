@@ -6,7 +6,6 @@ import (
 	"io"
 	"os"
 	"sync"
-	"time"
 )
 
 type headlessExecutor struct{}
@@ -62,18 +61,6 @@ func (e headlessExecutor) Rollback(ctx context.Context, rb *Runbook, opts RunOpt
 		return false
 	}
 	return true
-}
-
-type runState struct {
-	version  int
-	runbook  string
-	plan     string
-	commit   string
-	started  time.Time
-	finished time.Time
-	duration time.Duration
-	status   RunStatus
-	tasks    map[string]*taskState
 }
 
 type RunStatus string

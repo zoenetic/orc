@@ -122,6 +122,7 @@ func (rb *Runbook) buildRunRecord(
 	}
 
 	return RunRecord{
+		ID:       generateRunID(started),
 		Version:  stateVersion,
 		Runbook:  rb.name,
 		Plan:     plan,

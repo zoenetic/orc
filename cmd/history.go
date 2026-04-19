@@ -70,7 +70,7 @@ func printHistory(runs []orc.RunRecord) {
 			statusStyle = histMeta
 		}
 
-		ts := histMeta.Render(r.Started.Format("2006-01-02 15:04"))
+		id := histMeta.Render(r.ID)
 		plan := histPlan.Render(r.Plan)
 		status := statusStyle.Render(string(r.Status))
 		dur := histMeta.Render(fmtDuration(r.Duration))
@@ -78,9 +78,8 @@ func printHistory(runs []orc.RunRecord) {
 		if r.Commit != "" {
 			commit = histMeta.Render(r.Commit)
 		}
-		id := histMeta.Render(r.ID)
 
-		fmt.Printf("  %s  %s  %s  %s  %s  %s  %s\n", icon, ts, plan, status, dur, commit, id)
+		fmt.Printf("  %s  %s  %s  %s  %s  %s\n", icon, id, plan, status, dur, commit)
 	}
 	fmt.Fprintln(os.Stdout)
 }
