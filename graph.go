@@ -7,7 +7,7 @@ func (rb *Runbook) Stages() ([][]*Task, map[*Task][]*Task, error) {
 	children := make(map[*Task][]*Task, len(rb.tasks))
 
 	for _, t := range rb.tasks {
-		for _, ok := inDegree[t]; !ok; {
+		if _, ok := inDegree[t]; !ok {
 			inDegree[t] = 0
 		}
 		for _, dep := range t.dependencies {
