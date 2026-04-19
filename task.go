@@ -13,6 +13,14 @@ type Task struct {
 	env          []*EnvVar
 }
 
+func (t *Task) DoClauses() []*DoClause {
+	return t.doClauses
+}
+
+func (t *Task) UndoClauses() []*UndoClause {
+	return t.undoClauses
+}
+
 func (t *Task) Name() string {
 	return t.name
 }

@@ -2,7 +2,7 @@ package orc
 
 import "fmt"
 
-func (rb *Runbook) stages() ([][]*Task, map[*Task][]*Task, error) {
+func (rb *Runbook) Stages() ([][]*Task, map[*Task][]*Task, error) {
 	inDegree := make(map[*Task]int, len(rb.tasks))
 	children := make(map[*Task][]*Task, len(rb.tasks))
 

@@ -27,6 +27,10 @@ func New(name string, opts Options) *Runbook {
 	}
 }
 
+func (rb *Runbook) Name() string {
+	return rb.name
+}
+
 func (rb *Runbook) Use(name, version string, sources ...PkgSource) *Runbook {
 	rb.packages = append(rb.packages, &Pkg{
 		name:    name,

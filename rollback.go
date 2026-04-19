@@ -45,7 +45,7 @@ func (rb *Runbook) Rollback(ctx context.Context, opts RunOptions, runID string) 
 		}
 	}
 
-	taskStages, _, err := rb.stages()
+	taskStages, _, err := rb.Stages()
 	if err != nil {
 		return RollbackResult{
 			Completed: false,

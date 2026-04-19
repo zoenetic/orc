@@ -76,17 +76,26 @@ type DoClause struct {
 	confirmCmds []*Command
 }
 
-type UndoClause struct {
-	cmds        []*Command
-	ifCmds      []*Command
-	unlessCmds  []*Command
-	confirmCmds []*Command
-}
-
 func Do(commands ...*Command) *DoClause {
 	return &DoClause{
 		cmds: commands,
 	}
+}
+
+func (d *DoClause) DoCmds() []*Command {
+	return d.cmds
+}
+
+func (d *DoClause) IfCmds() []*Command {
+	return d.ifCmds
+}
+
+func (d *DoClause) UnlessCmds() []*Command {
+	return d.unlessCmds
+}
+
+func (d *DoClause) ConfirmCmds() []*Command {
+	return d.confirmCmds
 }
 
 func (d *DoClause) apply(t *Task) {
@@ -128,14 +137,37 @@ func (d *DoClause) Unless(conditions ...*Command) *DoClause {
 }
 
 func (d *DoClause) Confirm(conditions ...*Command) *DoClause {
-	d.ifCmds = append(d.ifCmds, conditions...)
+	d.confirmCmds = append(d.confirmCmds, conditions...)
 	return d
+}
+
+type UndoClause struct {
+	cmds        []*Command
+	ifCmds      []*Command
+	unlessCmds  []*Command
+	confirmCmds []*Command
 }
 
 func Undo(commands ...*Command) *UndoClause {
 	return &UndoClause{
 		cmds: commands,
 	}
+}
+
+func (u *UndoClause) DoCmds() []*Command {
+	return u.cmds
+}
+
+func (u *UndoClause) IfCmds() []*Command {
+	return u.ifCmds
+}
+
+func (u *UndoClause) UnlessCmds() []*Command {
+	return u.unlessCmds
+}
+
+func (u *UndoClause) ConfirmCmds() []*Command {
+	return u.confirmCmds
 }
 
 func (u *UndoClause) apply(t *Task) {

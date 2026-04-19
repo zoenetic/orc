@@ -14,7 +14,7 @@ type PreviewTaskResult struct {
 }
 
 func (rb *Runbook) Preview(ctx context.Context, opts RunOptions) *PreviewResult {
-	stages, _, err := rb.stages()
+	stages, _, err := rb.Stages()
 	if err != nil {
 		return &PreviewResult{Errors: []error{err}}
 	}

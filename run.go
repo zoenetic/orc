@@ -16,7 +16,7 @@ type RunResult struct {
 func (rb *Runbook) Run(ctx context.Context, opts RunOptions) RunResult {
 	startedAt := time.Now()
 
-	stages, children, err := rb.stages()
+	stages, children, err := rb.Stages()
 	if err != nil {
 		return RunResult{
 			Completed: false,
