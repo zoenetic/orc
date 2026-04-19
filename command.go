@@ -65,7 +65,7 @@ func Sh(cmd string, env ...*EnvVar) *Command {
 	return &Command{raw: cmd, env: env, typ: cmdSh}
 }
 
-func ShArgs(cmd string, args ...string) *Command {
+func Cmd(cmd string, args ...string) *Command {
 	return &Command{cmd: cmd, args: args, typ: cmdShArgs}
 }
 
@@ -209,7 +209,7 @@ func (u *UndoClause) Unless(conditions ...*Command) *UndoClause {
 }
 
 func (u *UndoClause) Confirm(conditions ...*Command) *UndoClause {
-	u.ifCmds = append(u.ifCmds, conditions...)
+	u.confirmCmds = append(u.confirmCmds, conditions...)
 	return u
 }
 

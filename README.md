@@ -16,7 +16,6 @@ Use `orc init` to scaffold a new project:
 
 ```
 orc init my-project
-
 cd my-project
 ```
 
@@ -90,14 +89,70 @@ All commands except `history` accept an optional plan name (defaults to `default
 | `Do(cmds...)` | Commands to execute |
 | `Undo(cmds...)` | Commands to run on rollback, in reverse stage order |
 | `DependsOn(tasks...)` | Declare dependencies (determines stage ordering) |
-| `SkipIf(cmd)` | Skip task if command exits 0 |
-| `RunIf(cmd)` | Skip task if command exits non-zero |
-| `CheckFn(fn)` | Skip task based on a Go function |
-| `Confirm(cmd)` | Assert a condition after execution |
 
 ## Commands
 
-`orc.Sh(args...)` runs a shell command. `orc.ShF(format, args...)` is a `Sprintf`-style shorthand.
+`orc.Sh(cmd)` runs a shell string via `sh -c`. Env vars can be passed as additional arguments:
+
+```go
+orc.Sh("echo $GREETING", orc.Env("GREETING", "hello"))
+```
+
+`orc.Cmd(cmd, args...)` runs a command with explicit arguments without a shell:
+
+```go
+orc.Cmd("kubectl", "apply", "-f", "deploy.yaml")
+```
+
+## Clauses
+
+`If`, `Unless`, and `Confirm` are methods on `Do` and `Undo` clauses. They control whether the clause runs and assert post-conditions.
+
+**`If(cmd)`** — run the clause only if the command exits 0:
+
+```go
+orc.Do(orc.Sh("make build")).If(orc.Sh("git diff --quiet HEAD"))
+```
+
+**`Unless(cmd)`** — skip the clause if the command exits 0:
+
+```go
+orc.Do(orc.Sh("docker build .")).Unless(orc.Sh("docker image inspect myapp:latest"))
+```
+
+**`Confirm(cmd)`** — assert a condition after the clause executes; fails the task if it exits non-zero:
+
+```go
+orc.Do(orc.Sh("kubectl apply -f deploy.yaml")).
+    Confirm(orc.Sh("kubectl rollout status deployment/myapp"))
+```
+
+Multiple calls can be chained, and all three can be combined on a single clause. `If` and `Unless` conditions are evaluated before execution; `Confirm` is evaluated after. The same methods are available on `Undo` clauses.
+
+## Environment variables
+
+Env vars cascade from runbook → task → command, with each level able to override the parent.
+
+```go
+rb := orc.New("deploy", orc.Options{})
+rb.Env(orc.Env("ENV", "staging"))   // applies to all tasks
+
+task := rb.Task("deploy",
+    orc.Do(orc.Sh("./deploy.sh", orc.Env("ENV", "prod"))),  // overrides at command level
+)
+task.Env("REGION", "eu-west-1")     // overrides at task level
+```
+
+## Package dependencies
+
+`rb.Use` declares a required CLI tool. orc checks it exists in PATH before running; if not, it attempts to install it via the provided sources.
+
+```go
+rb.Use("kubectl", "1.29", orc.Apt(), orc.Nix())
+rb.Use("helm", "3.14", orc.Nix())
+```
+
+Available sources: `Apt()`, `Dnf()`, `Nix()`, `Winget()`.
 
 ## License
 
