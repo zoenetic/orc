@@ -122,8 +122,9 @@ func isLegalTransition(from, to TaskStatus) bool {
 
 func (s TaskStatus) String() string {
 	return [...]string{
-		"pending", "blocked", "ready", "running", "skipped",
-		"cancelled", "failed", "satisfied", "succeeded",
+		"pending", "blocked", "ready", "running",
+		"satisfied", "succeeded", "confirm_failed",
+		"skipped", "cancelled", "failed",
 	}[s]
 }
 

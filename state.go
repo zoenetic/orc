@@ -117,7 +117,7 @@ func (rb *Runbook) buildRunRecord(
 			Started:  s.started,
 			Finished: s.finished,
 			Duration: s.duration,
-			Err:      s.err.Error(),
+			Err:      errString(s.err),
 		}
 	}
 
@@ -187,6 +187,13 @@ func appendHistory(record RunRecord) error {
 		return fmt.Errorf("write history file: %w", err)
 	}
 	return nil
+}
+
+func errString(err error) string {
+	if err == nil {
+		return ""
+	}
+	return err.Error()
 }
 
 func gitCommit() string {

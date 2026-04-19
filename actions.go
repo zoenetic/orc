@@ -7,6 +7,8 @@ import (
 	"os/signal"
 	"reflect"
 	"strings"
+
+	"github.com/mattn/go-isatty"
 )
 
 var runbookPtrType = reflect.TypeFor[*Runbook]()
@@ -50,9 +52,13 @@ func Main[T any](exec ...Executor) {
 		os.Exit(1)
 	}
 
-	var e Executor = headlessExecutor{}
+	var e Executor
 	if len(exec) > 0 && exec[0] != nil {
 		e = exec[0]
+	} else if isatty.IsTerminal(os.Stdout.Fd()) {
+		e = Display{}
+	} else {
+		e = headlessExecutor{}
 	}
 
 	opts := RunOptions{

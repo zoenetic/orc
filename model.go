@@ -1,4 +1,4 @@
-package runner
+package orc
 
 import (
 	"context"
@@ -9,10 +9,9 @@ import (
 	"charm.land/bubbles/v2/spinner"
 	tea "charm.land/bubbletea/v2"
 	"charm.land/lipgloss/v2"
-	"github.com/zoenetic/orc"
 )
 
-type taskEventMsg orc.TaskEvent
+type taskEventMsg TaskEvent
 type outputMsg struct {
 	task string
 	line string
@@ -22,7 +21,7 @@ type doneMsg struct{}
 
 type taskModel struct {
 	name     string
-	status   orc.TaskStatus
+	status   TaskStatus
 	duration time.Duration
 	err      error
 	output   []string
@@ -30,7 +29,7 @@ type taskModel struct {
 }
 
 type model struct {
-	stages       [][]*orc.Task
+	stages       [][]*Task
 	tasks        map[string]*taskModel
 	spinner      spinner.Model
 	verbose      bool
@@ -40,7 +39,7 @@ type model struct {
 	cancel       context.CancelFunc
 }
 
-func newModel(stages [][]*orc.Task, verbose bool, cancel context.CancelFunc) model {
+func newModel(stages [][]*Task, verbose bool, cancel context.CancelFunc) model {
 	s := spinner.New()
 	s.Spinner = spinner.Dot
 	s.Style = lipgloss.NewStyle().Foreground(lipgloss.Color(palette.Lavender().Hex))
@@ -81,6 +80,9 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, nil
 
 	case spinner.TickMsg:
+		if m.done {
+			return m, nil
+		}
 		var cmd tea.Cmd
 		m.spinner, cmd = m.spinner.Update(msg)
 		return m, cmd
@@ -93,7 +95,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		t.status = msg.Status
 		t.duration = msg.Duration
 		t.err = msg.Err
-		if msg.Status == orc.StatusRunning {
+		if msg.Status == StatusRunning {
 			t.started = time.Now()
 		}
 		if msg.Status.IsTerminal() {
@@ -128,10 +130,6 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m model) View() tea.View {
-	if m.done {
-		return tea.NewView("")
-	}
-
 	var b strings.Builder
 	b.WriteString("\n")
 
@@ -143,7 +141,7 @@ func (m model) View() tea.View {
 			b.WriteString("\n")
 		}
 
-		sorted := make([]*orc.Task, len(stage))
+		sorted := make([]*Task, len(stage))
 		copy(sorted, stage)
 		sort.Slice(sorted, func(a, b int) bool {
 			return sorted[a].Name() < sorted[b].Name()

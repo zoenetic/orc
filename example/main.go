@@ -10,7 +10,6 @@ import (
 	"strings"
 
 	"github.com/zoenetic/orc"
-	"github.com/zoenetic/orc/runner"
 )
 
 // Plans holds all runbook plans for this project.
@@ -25,9 +24,7 @@ type Plans struct {
 }
 
 func main() {
-	// Pass runner.Default for full TUI output (spinners, colours, stage view).
-	// Useful when running locally or in a terminal that supports ANSI.
-	orc.Main[Plans](runner.Default)
+	orc.Main[Plans](orc.Display{})
 
 	// For plain text output — e.g. piped into a log file or running in CI:
 	//   orc.Main[Plans]()

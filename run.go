@@ -100,7 +100,7 @@ func (rb *Runbook) Run(ctx context.Context, opts RunOptions) RunResult {
 	wg.Wait()
 
 	result := rb.collectResult(ctx, states)
-	record := rb.buildRunRecord(rb.name, startedAt, time.Now(), states)
+	record := rb.buildRunRecord(opts.Plan, startedAt, time.Now(), states)
 	if err := persistRecord(record); err != nil {
 		result.Errors = append(result.Errors, err)
 	}
