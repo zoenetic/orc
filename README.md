@@ -145,14 +145,12 @@ task.Env("REGION", "eu-west-1")     // overrides at task level
 
 ## Package dependencies
 
-`rb.Use` declares a required CLI tool. orc checks it exists in PATH before running; if not, it attempts to install it via the provided sources.
+`rb.Use` declares a required CLI tool. orc checks it exists in PATH before running.
 
 ```go
-rb.Use("kubectl", "1.29", orc.Apt(), orc.Nix())
-rb.Use("helm", "3.14", orc.Nix())
+rb.Use("kubectl")
+rb.Use("helm")
 ```
-
-Available sources: `Apt()`, `Dnf()`, `Nix()`, `Winget()`.
 
 ## License
 

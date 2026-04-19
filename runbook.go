@@ -31,10 +31,9 @@ func (rb *Runbook) Name() string {
 	return rb.name
 }
 
-func (rb *Runbook) Use(name, version string, sources ...PkgSource) *Runbook {
+func (rb *Runbook) Use(name string, sources ...PkgSource) *Runbook {
 	rb.packages = append(rb.packages, &Pkg{
 		name:    name,
-		version: version,
 		sources: sources,
 	})
 	return rb

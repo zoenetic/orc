@@ -15,7 +15,6 @@ func Winget() PkgSource { return &wingetSource{} }
 
 type Pkg struct {
 	name    string
-	version string
 	sources []PkgSource
 }
 
