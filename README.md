@@ -90,16 +90,16 @@ All commands except `history` accept an optional plan name (defaults to `default
 
 ## Commands
 
-`orc.Sh(cmd)` runs a shell string via `sh -c`. Env vars can be passed as additional arguments:
-
-```go
-orc.Sh("echo $GREETING", orc.Env("GREETING", "hello"))
-```
-
 `orc.Cmd(cmd, args...)` runs a command with explicit arguments without a shell:
 
 ```go
 orc.Cmd("kubectl", "apply", "-f", "deploy.yaml")
+```
+
+`orc.Sh(cmd)` runs a shell string via `sh -c`. Env vars can be passed as additional arguments:
+
+```go
+orc.Sh("echo $GREETING", orc.Env("GREETING", "hello"))
 ```
 
 ## Clauses
