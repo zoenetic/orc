@@ -70,8 +70,6 @@ func (p *Plans) Default() *orc.Runbook {
 
 ## CLI commands
 
-`orc.Main` selects the bubbletea TUI automatically when stdout is a terminal, and falls back to plain output otherwise (CI, pipes).
-
 ```
 orc run      [plan] [-v]          execute a plan
 orc preview  [plan]               show what would run and last-run status per task
