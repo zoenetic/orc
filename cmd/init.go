@@ -30,24 +30,30 @@ type Plans struct{}
 func main() { orc.Main[Plans]() }
 
 func (p *Plans) Default() *orc.Runbook {
-    rb := orc.New("hello world", orc.Options{
-        Concurrency: 2,
-    })
+	rb := orc.New("hello world", orc.Options{
+		Concurrency: 2,
+	})
 
-    sayHello := rb.Task("say hello",
-        orc.Do(orc.Sh("echo hello")),
-    )
+	sayHello := rb.Task("say hello",
+		orc.Do{
+			Cmds: orc.Sh("echo hello"),
+		},
+	)
 
-    sayBonjour := rb.Task("say bonjour",
-        orc.Do(orc.Sh("echo bonjour")),
-    )
+	sayBonjour := rb.Task("say bonjour",
+		orc.Do{
+			Cmds: orc.Sh("echo bonjour"),
+		},
+	)
 
-    _ = rb.Task("say goodbye",
-        orc.Do(orc.Sh("echo goodbye")),
-        orc.DependsOn(sayHello, sayBonjour),
-    )
+	_ = rb.Task("say goodbye",
+		orc.Do{
+			Cmds: orc.Sh("echo goodbye"),
+		},
+		orc.DependsOn{sayHello, sayBonjour},
+	)
 
-    return rb
+	return rb
 }
 `
 

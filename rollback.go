@@ -102,7 +102,7 @@ func (rb *Runbook) rollbackTask(
 	t *Task,
 	opts RunOptions,
 ) (rollbackOutcome, error) {
-	if len(t.undoClauses) == 0 {
+	if len(t.undos) == 0 {
 		return rollbackNone, nil
 	}
 
@@ -112,7 +112,7 @@ func (rb *Runbook) rollbackTask(
 	}
 
 	anyRan := false
-	for _, clause := range t.undoClauses {
+	for _, clause := range t.undos {
 		run, err := clause.shouldRun(ctx)
 		if err != nil {
 			return rollbackNone, err
@@ -120,13 +120,13 @@ func (rb *Runbook) rollbackTask(
 		if !run {
 			continue
 		}
-		for _, cmd := range clause.cmds {
+		for _, cmd := range clause.Cmds {
 			if err := cmd.execute(ctx, out); err != nil {
 				return rollbackNone, err
 			}
 			anyRan = true
 		}
-		for _, cmd := range clause.confirmCmds {
+		for _, cmd := range clause.Confirm {
 			ok, err := cmd.checkSatisfied(ctx)
 			if err != nil {
 				return rollbackNone, err

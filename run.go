@@ -35,7 +35,8 @@ func (rb *Runbook) Run(ctx context.Context, opts RunOptions) RunResult {
 	for _, t := range rb.tasks {
 		states[t] = &taskState{
 			task:         t,
-			pendingCount: len(t.dependencies),
+			status:       StatusPending,
+			pendingCount: len(t.deps),
 		}
 	}
 

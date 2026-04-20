@@ -113,7 +113,7 @@ func (rb *Runbook) buildRunRecord(
 	tasks := make(map[string]TaskRecord, len(states))
 	for _, s := range states {
 		tasks[s.task.name] = TaskRecord{
-			Status:   s.status.String(),
+			Status:   string(s.status),
 			Started:  s.started,
 			Finished: s.finished,
 			Duration: s.duration,

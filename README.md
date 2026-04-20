@@ -54,17 +54,30 @@ type Plans struct{}
 func main() { orc.Main[Plans]() }
 
 func (p *Plans) Default() *orc.Runbook {
-    rb := orc.New("my runbook", orc.Options{Concurrency: 4})
+	rb := orc.New("hello world", orc.Options{
+		Concurrency: 2,
+	})
 
-    a := rb.Task("step a", orc.Do(orc.Sh("echo a")))
+	sayHello := rb.Task("say hello",
+		orc.Do{
+			Cmds: orc.Sh("echo hello"),
+		},
+	)
 
-    rb.Task("step b",
-        orc.Do(orc.Sh("echo b")),
-        orc.Undo(orc.Sh("echo undo b")),
-        orc.DependsOn(a),
-    )
+	sayBonjour := rb.Task("say bonjour",
+		orc.Do{
+			Cmds: orc.Sh("echo bonjour"),
+		},
+	)
 
-    return rb
+	_ = rb.Task("say goodbye",
+		orc.Do{
+			Cmds: orc.Sh("echo goodbye"),
+		},
+		orc.DependsOn{sayHello, sayBonjour},
+	)
+
+	return rb
 }
 ```
 
@@ -86,9 +99,9 @@ All commands except `history` accept an optional plan name (defaults to `default
 
 | Option | Description |
 |---|---|
-| `Do(cmds...)` | Commands to execute |
-| `Undo(cmds...)` | Commands to run on rollback, in reverse stage order |
-| `DependsOn(tasks...)` | Declare dependencies (determines stage ordering) |
+| `orc.Do{Cmds, If, Unless, Confirm}` | Do clause: commands to run, with optional conditions and post-conditions |
+| `orc.Undo{Cmds, If, Unless, Confirm}` | Undo clause: run on rollback in reverse stage order |
+| `orc.DependsOn{tasks...}` | Declare dependencies (determines stage ordering) |
 
 ## Commands
 
@@ -106,28 +119,36 @@ orc.Cmd("kubectl", "apply", "-f", "deploy.yaml")
 
 ## Clauses
 
-`If`, `Unless`, and `Confirm` are methods on `Do` and `Undo` clauses. They control whether the clause runs and assert post-conditions.
+`If`, `Unless`, and `Confirm` are fields on `Do` and `Undo` structs. They control whether the clause runs and assert post-conditions.
 
-**`If(cmd)`** — run the clause only if the command exits 0:
-
-```go
-orc.Do(orc.Sh("make build")).If(orc.Sh("git diff --quiet HEAD"))
-```
-
-**`Unless(cmd)`** — skip the clause if the command exits 0:
+**`If`** — run the clause only if the command exits 0:
 
 ```go
-orc.Do(orc.Sh("docker build .")).Unless(orc.Sh("docker image inspect myapp:latest"))
+orc.Do{
+    Cmds: orc.Sh("make build"),
+    If:   orc.Sh("git diff --quiet HEAD"),
+}
 ```
 
-**`Confirm(cmd)`** — assert a condition after the clause executes; fails the task if it exits non-zero:
+**`Unless`** — skip the clause if the command exits 0:
 
 ```go
-orc.Do(orc.Sh("kubectl apply -f deploy.yaml")).
-    Confirm(orc.Sh("kubectl rollout status deployment/myapp"))
+orc.Do{
+    Cmds:   orc.Sh("docker build ."),
+    Unless: orc.Sh("docker image inspect myapp:latest"),
+}
 ```
 
-Multiple calls can be chained, and all three can be combined on a single clause. `If` and `Unless` conditions are evaluated before execution; `Confirm` is evaluated after. The same methods are available on `Undo` clauses.
+**`Confirm`** — assert a condition after the clause executes; fails the task if it exits non-zero:
+
+```go
+orc.Do{
+    Cmds:    orc.Sh("kubectl apply -f deploy.yaml"),
+    Confirm: orc.Sh("kubectl rollout status deployment/myapp"),
+}
+```
+
+All three can be combined on a single clause. `If` and `Unless` are evaluated before execution; `Confirm` is evaluated after. The same fields are available on `Undo` clauses.
 
 ## Environment variables
 
@@ -138,7 +159,7 @@ rb := orc.New("deploy", orc.Options{})
 rb.Env(orc.Env("ENV", "staging"))   // applies to all tasks
 
 task := rb.Task("deploy",
-    orc.Do(orc.Sh("./deploy.sh", orc.Env("ENV", "prod"))),  // overrides at command level
+    orc.Do{Cmds: orc.Sh("./deploy.sh", orc.Env("ENV", "prod"))},  // overrides at command level
 )
 task.Env("REGION", "eu-west-1")     // overrides at task level
 ```

@@ -79,14 +79,14 @@ func (rb *Runbook) previewTask(
 	t *Task,
 	results map[string]PreviewTaskResult,
 ) PreviewTaskResult {
-	for _, dep := range t.dependencies {
+	for _, dep := range t.deps {
 		if results[dep.name].Status == StatusFailed {
 			return PreviewTaskResult{Status: StatusSkipped}
 		}
 	}
 
 	allSatisfied := true
-	for _, clause := range t.doClauses {
+	for _, clause := range t.dos {
 		run, err := clause.shouldRun(ctx)
 		if err != nil {
 			return PreviewTaskResult{Status: StatusFailed, Err: err}

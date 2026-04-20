@@ -6,42 +6,38 @@ import (
 )
 
 type Task struct {
-	name         string
-	doClauses    []*DoClause
-	undoClauses  []*UndoClause
-	dependencies []*Task
-	env          []*EnvVar
+	name  string
+	dos   []Do
+	undos []Undo
+	deps  []*Task
+	env   []*EnvVar
 }
 
-func (t *Task) DoClauses() []*DoClause {
-	return t.doClauses
+func (t *Task) DoClauses() []Do {
+	return t.dos
 }
 
-func (t *Task) UndoClauses() []*UndoClause {
-	return t.undoClauses
+func (t *Task) UndoClauses() []Undo {
+	return t.undos
 }
 
 func (t *Task) Name() string {
 	return t.name
 }
 
-type taskOption interface {
-	apply(*Task)
-}
-
-type TaskStatus int
+type TaskStatus string
 
 const (
-	StatusPending TaskStatus = iota
-	StatusBlocked
-	StatusReady
-	StatusRunning
-	StatusSatisfied
-	StatusSucceeded
-	StatusConfirmFailed
-	StatusSkipped
-	StatusCancelled
-	StatusFailed
+	StatusPending       TaskStatus = "pending"
+	StatusBlocked       TaskStatus = "blocked"
+	StatusReady         TaskStatus = "ready"
+	StatusRunning       TaskStatus = "running"
+	StatusSatisfied     TaskStatus = "satisfied"
+	StatusSucceeded     TaskStatus = "succeeded"
+	StatusConfirmFailed TaskStatus = "confirm_failed"
+	StatusSkipped       TaskStatus = "skipped"
+	StatusCancelled     TaskStatus = "cancelled"
+	StatusFailed        TaskStatus = "failed"
 )
 
 type taskState struct {
@@ -70,20 +66,52 @@ type TaskResult struct {
 	Finished time.Time
 }
 
-func (r *Runbook) Task(name string, opts ...taskOption) *Task {
+type TaskOption interface {
+	isTaskOption()
+}
+
+func (r *Runbook) Task(name string, opts ...TaskOption) *Task {
 	if _, dup := r.tasks[name]; dup {
 		panic(fmt.Sprintf("runbook: duplicate task name %q", name))
 	}
 	t := &Task{name: name}
+
 	for _, opt := range opts {
-		opt.apply(t)
+		switch v := opt.(type) {
+		case Do:
+			t.dos = append(t.dos, v)
+		case Undo:
+			t.undos = append(t.undos, v)
+		case DependsOn:
+			for _, d := range v {
+				t.deps = append(t.deps, d)
+			}
+		default:
+			panic(fmt.Sprintf("runbook: unknown task option type %T", opt))
+		}
 	}
-	if len(t.doClauses) == 0 {
+
+	if len(t.dos) == 0 {
 		panic(fmt.Sprintf("runbook: task %q has no Do clauses", name))
 	}
 	r.tasks[name] = t
 	return t
 }
+
+// func (r *Runbook) Task(name string, opts ...taskOption) *Task {
+// 	if _, dup := r.tasks[name]; dup {
+// 		panic(fmt.Sprintf("runbook: duplicate task name %q", name))
+// 	}
+// 	t := &Task{name: name}
+// 	for _, opt := range opts {
+// 		opt.apply(t)
+// 	}
+// 	if len(t.doClauses) == 0 {
+// 		panic(fmt.Sprintf("runbook: task %q has no Do clauses", name))
+// 	}
+// 	r.tasks[name] = t
+// 	return t
+// }
 
 func (t *Task) Env(name, value string) *Task {
 	t.env = append(t.env, &EnvVar{name: name, value: value})
@@ -112,20 +140,12 @@ func isLegalTransition(from, to TaskStatus) bool {
 	case StatusReady:
 		return to == StatusRunning || to == StatusCancelled
 	case StatusRunning:
-		return to == StatusSucceeded || to == StatusFailed || to == StatusCancelled
+		return to == StatusSatisfied || to == StatusSucceeded || to == StatusFailed || to == StatusCancelled
 	case StatusSatisfied, StatusSucceeded, StatusFailed, StatusSkipped, StatusCancelled:
 		return false
 	default:
 		return false
 	}
-}
-
-func (s TaskStatus) String() string {
-	return [...]string{
-		"pending", "blocked", "ready", "running",
-		"satisfied", "succeeded", "confirm_failed",
-		"skipped", "cancelled", "failed",
-	}[s]
 }
 
 func (s TaskStatus) IsTerminal() bool {

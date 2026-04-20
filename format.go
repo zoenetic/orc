@@ -73,7 +73,7 @@ func (m model) formatTask(t *taskModel) string {
 	}
 
 	name := lipgloss.NewStyle().Width(m.maxNameWidth).Render(t.name)
-	statusText := statusStyle.Render(t.status.String())
+	statusText := statusStyle.Render(string(t.status))
 
 	var trailing string
 	switch t.status {
@@ -119,7 +119,7 @@ func fmtTaskLastRun(last *TaskRecord) string {
 	if last == nil {
 		return ""
 	}
-	if last.Status == StatusSucceeded.String() || last.Status == StatusSatisfied.String() {
+	if last.Status == string(StatusSucceeded) || last.Status == string(StatusSatisfied) {
 		return fmt.Sprintf("last run %s", fmtAge(time.Since(last.Finished)))
 	}
 	return fmt.Sprintf("last run %s with status %s", fmtAge(time.Since(last.Finished)), last.Status)
@@ -170,22 +170,22 @@ func printPlan(rb *Runbook, result *PreviewResult) {
 
 			fmt.Printf("  %s  %s  %s\n", icon, nameStyle.Render(t.Name()), lastNote)
 			for _, clause := range t.DoClauses() {
-				hasConditions := len(clause.IfCmds()) > 0 || len(clause.UnlessCmds()) > 0
+				hasConditions := len(clause.If) > 0 || len(clause.Unless) > 0
 
-				for _, cmd := range clause.IfCmds() {
+				for _, cmd := range clause.If {
 					fmt.Printf("       %s  %s\n", previewMeta.Render("if:     "), cmdStyle.Render("$ "+cmd.String()))
 				}
-				for _, cmd := range clause.UnlessCmds() {
+				for _, cmd := range clause.Unless {
 					fmt.Printf("       %s  %s\n", previewMeta.Render("unless: "), cmdStyle.Render("$ "+cmd.String()))
 				}
-				for _, cmd := range clause.DoCmds() {
+				for _, cmd := range clause.Cmds {
 					label := "        "
 					if hasConditions {
 						label = "do:     "
 					}
 					fmt.Printf("       %s  %s\n", previewMeta.Render(label), cmdStyle.Render("$ "+cmd.String()))
 				}
-				for _, cmd := range clause.ConfirmCmds() {
+				for _, cmd := range clause.Confirm {
 					fmt.Printf("       %s  %s\n", previewMeta.Render("confirm:"), cmdStyle.Render("$ "+cmd.String()))
 				}
 			}

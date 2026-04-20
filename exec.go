@@ -135,7 +135,7 @@ func (rb *Runbook) executeTask(
 	}
 
 	allSatisfied := true
-	for _, clause := range t.doClauses {
+	for _, clause := range t.dos {
 		run, err := clause.shouldRun(ctx)
 		if err != nil {
 			rb.failTask(state, err, states, children, mu, remaining, closeDone)
@@ -146,7 +146,7 @@ func (rb *Runbook) executeTask(
 			continue
 		}
 		allSatisfied = false
-		for _, cmd := range clause.cmds {
+		for _, cmd := range clause.Cmds {
 			if err := cmd.execute(ctx, out); err != nil {
 				rb.failTask(state, fmt.Errorf("execute command %q: %w", cmd.String(), err), states, children, mu, remaining, closeDone)
 				emit(StatusFailed, err)

@@ -10,7 +10,7 @@ func (rb *Runbook) Stages() ([][]*Task, map[*Task][]*Task, error) {
 		if _, ok := inDegree[t]; !ok {
 			inDegree[t] = 0
 		}
-		for _, dep := range t.dependencies {
+		for _, dep := range t.deps {
 			children[dep] = append(children[dep], t)
 			inDegree[t]++
 		}

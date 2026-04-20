@@ -4,32 +4,32 @@ func (rb *Runbook) prepare() error {
 	for _, t := range rb.tasks {
 		taskEnv := mergeEnv(rb.env, t.env)
 
-		for _, clause := range t.doClauses {
-			for _, cmd := range clause.cmds {
+		for _, clause := range t.dos {
+			for _, cmd := range clause.Cmds {
 				cmd.env = mergeEnv(taskEnv, cmd.env)
 			}
-			for _, cmd := range clause.ifCmds {
+			for _, cmd := range clause.If {
 				cmd.env = mergeEnv(taskEnv, cmd.env)
 			}
-			for _, cmd := range clause.unlessCmds {
+			for _, cmd := range clause.Unless {
 				cmd.env = mergeEnv(taskEnv, cmd.env)
 			}
-			for _, cmd := range clause.confirmCmds {
+			for _, cmd := range clause.Confirm {
 				cmd.env = mergeEnv(taskEnv, cmd.env)
 			}
 		}
 
-		for _, clause := range t.undoClauses {
-			for _, cmd := range clause.cmds {
+		for _, clause := range t.undos {
+			for _, cmd := range clause.Cmds {
 				cmd.env = mergeEnv(taskEnv, cmd.env)
 			}
-			for _, cmd := range clause.ifCmds {
+			for _, cmd := range clause.If {
 				cmd.env = mergeEnv(taskEnv, cmd.env)
 			}
-			for _, cmd := range clause.unlessCmds {
+			for _, cmd := range clause.Unless {
 				cmd.env = mergeEnv(taskEnv, cmd.env)
 			}
-			for _, cmd := range clause.confirmCmds {
+			for _, cmd := range clause.Confirm {
 				cmd.env = mergeEnv(taskEnv, cmd.env)
 			}
 		}
